@@ -1,5 +1,5 @@
 # XORG Crypt
-## Compilacón
+## Compilación
 ```
 cd xorg_crypt && cargo build --release
 ```

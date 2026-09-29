@@ -1,51 +1,35 @@
 use std::env;
 use std::process;
+use std::io::{self, BufWriter, Write};
 
 fn encrypt(message: String, key: Vec<u8>) -> Vec<u8> {
     let mut result: Vec<u8> = Vec::new();
-    let mut assignment = 0;
-    for b in message.trim().bytes() {
-        result.push(b ^ key[if assignment >= key.len() {
-            assignment = 0;
-            0
-        } else {
-            assignment
-        }]);
-        assignment += 1;
+    for (i, b) in message.trim().bytes().enumerate() {
+        result.push(b ^ key[i % key.len()]);
     }
     result
 }
 
 fn decrypt(mut crypt: String, key: Vec<u8>) -> String {
     let mut result = String::new();
-    let mut assignment = 0;
-    for _ in 0..(crypt.len()/8) {
+    for i in 0..(crypt.len()/8) {
         let binary: String = crypt.drain(0..8).collect();
         if let Ok(code) = u32::from_str_radix(&binary, 2) {
-            let new_code = code ^ key[
-                if assignment >= key.len() {
-                    assignment = 0;
-                    0
-                } else {
-                    assignment
-                }
-            ] as u32;
+            let new_code = code ^ key[i % key.len()] as u32;
             if let Some(c) = char::from_u32(new_code) {
                 result.push(c);
             }
         }
-        assignment += 1;
     }
     result
 }
 
 fn main() {
-    let mut args = env::args();
-    args.next();
+    let mut args = env::args().skip(1);
     let option = match args.next() {
         Some(s) => s,
         None => {
-            eprintln!("Debes especificar la operacion: decrypt (o) encrypt");
+            eprintln!("Debes especificar la operación: decrypt (o) encrypt");
             process::exit(1);
         },
     };
@@ -68,17 +52,21 @@ fn main() {
         process::exit(1);
     }
     let key: Vec<u8> = key.trim().bytes().collect();
+    let stdout = io::stdout();
+    let mut writer = BufWriter::new(stdout.lock());
     match option.trim() {
         "decrypt" => {
-            println!("{}", decrypt(message, key));
+            _ = writeln!(writer, "{}", decrypt(message, key));
         },
         "encrypt" => {
             for r in encrypt(message, key) {
-                print!("{:08b}", r);
+                _ = write!(writer, "{:08b}", r);
             }
+            _ = writeln!(writer);
         },
         _ => {
-            panic!("Opcion invalidad: e o d");
+            panic!("Opción invalidad: e o d");
         }
     }
+    _ = writer.flush();
 }
