@@ -1,0 +1,36 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: xorg_crypt-linux
+          - os: windows-latest
+            artifact_name: xorg_crypt-windows.exe
+          - os: macos-latest
+            artifact_name: xorg_crypt-macos
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build release
+      run: cargo build --release
+
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/release/xorg_crypt*
