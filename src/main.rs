@@ -65,7 +65,9 @@ fn main() {
             _ = writeln!(writer);
         },
         _ => {
-            panic!("Opción invalidad: e o d");
+            eprintln!("Opción no especificada");
+            _ = writer.flush();
+            process::exit(1);
         }
     }
     _ = writer.flush();
