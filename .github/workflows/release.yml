@@ -15,10 +15,13 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: xor_crypt-linux
+            binary_path: target/release/xor_crypt
           - os: windows-latest
             artifact_name: xor_crypt-windows.exe
+            binary_path: target/release/xor_crypt.exe
           - os: macos-latest
             artifact_name: xor_crypt-macos
+            binary_path: target/release/xor_crypt
 
     steps:
     - uses: actions/checkout@v4
@@ -29,8 +32,12 @@ jobs:
     - name: Build release
       run: cargo build --release
 
+    - name: Prepare asset name
+      shell: bash
+      run: |
+        cp ${{ matrix.binary_path }} ${{ matrix.artifact_name }}
+
     - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
-        files: |
-          target/release/xor_crypt*
+        files: ${{ matrix.artifact_name }}
