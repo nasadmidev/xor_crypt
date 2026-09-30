@@ -14,11 +14,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: xorg_crypt-linux
+            artifact_name: xor_crypt-linux
           - os: windows-latest
-            artifact_name: xorg_crypt-windows.exe
+            artifact_name: xor_crypt-windows.exe
           - os: macos-latest
-            artifact_name: xorg_crypt-macos
+            artifact_name: xor_crypt-macos
 
     steps:
     - uses: actions/checkout@v4
@@ -33,4 +33,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          target/release/xorg_crypt*
+          target/release/xor_crypt*
